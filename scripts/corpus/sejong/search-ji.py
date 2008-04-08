@@ -27,7 +27,7 @@ class Encode:
       self.stdout.write(s.encode(self.encoding))
 
 file = codecs.open(sys.argv[1], 'r', 'utf-8')
-corpus = sejong.Sense.Corpus(file)
+corpus = kltk.corpus.sejong.Sense.Corpus(file)
 sys.stdout = Encode(sys.stdout, 'utf-8')
 
 TAG_E = re.compile('(EC|EF|ETM|ETN)')

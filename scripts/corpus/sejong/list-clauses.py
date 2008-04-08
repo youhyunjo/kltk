@@ -22,7 +22,7 @@ TAG_SEP = re.compile('.*[^ ][+][^ ].*')
 
 
 file = codecs.open(sys.argv[1], 'r', 'utf-8')
-corpus = sejong.Sense.Corpus(file)
+corpus = kltk.corpus.sejong.Sense.Corpus(file)
 sys.stdout = Encode(sys.stdout, 'utf-8')
 
 

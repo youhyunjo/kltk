@@ -1,0 +1,1 @@
+../../../data/corpora/sejong/sense/BSAA0001.txt.utf8
