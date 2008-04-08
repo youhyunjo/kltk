@@ -7,7 +7,7 @@
 #
 import codecs
 import sys
-from sejong.Sense import Corpus
+from kltk.corpus.sejong.Sense import Corpus
 
 class Encode:
     def __init__(self, stdout, enc):

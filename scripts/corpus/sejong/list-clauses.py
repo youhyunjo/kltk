@@ -5,7 +5,7 @@
 import re
 import codecs
 import sys
-import sejong.Sense
+import kltk.corpus.sejong.Sense
 
 class Encode:
    def __init__(self, stdout, enc):

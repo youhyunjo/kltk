@@ -7,7 +7,7 @@
 import re
 import codecs
 import sys
-import sejong.Sense
+import kltk.corpus.sejong.Sense
 
 def cat (str1, str2):
 	return str1 + " " + str2
