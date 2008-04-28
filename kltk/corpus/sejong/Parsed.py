@@ -49,7 +49,6 @@ Morph:
     
 """
 
-import re
 import codecs
 import sys
 
@@ -70,52 +69,39 @@ class TreeBank:
 """
 	def __init__(self, file):
 		self.file = file
+		self.number_of_trees = 0
 	
 	def __iter__(self):
 		return self
 
 	def readtree(self): 
-		# read sentence line and create a tree
+		# read SENTENCE FORM
+		# read sentence form line and initialize a tree
 		line = self.readline()
+		self.number_of_trees += 1
+		id = str(self.number_of_trees)
 		if (line[0:2] == '; '):
-			curr_tree = Tree(id, line[2:])
+			tree = Tree(id, line[2:])
 		else:
-			exit(0)
+			sys.exit(1) # ERROR: no sentence form line 
 
-		# PARSE BINARY TREE
-		# 
+		# PARSE TREE 
 
-		# FIRST LINE : PATH from ROOT to FIRST WORD
-		#
-		# read first line. first line corresponds path from the root
-		# to the first terminal node. The first word is on the first 
-		# terminal node.
-		path = self.parseline(self.readline())
-		
-		if len(path) > 0:
-			curr_tree.set_root(path.pop(0))
-			while (len(path) > 1) :
-				curr_tree.append_to_current_node(path.pop(0))	
-			for i in xrange(0, path.pop(0)):
-				print curr_tree.curr_node
-				curr_tree.move_up()
-		elif len(path) == 0:
-			curr_tree.set_root(path.pop(0)) 
-			curr_tree.append_to_current_node(path.pop(0))
-			curr_tree.set_current_node(curr_tree.root)
-			#return curr_tree
-		else :
-			exit(0) # ParseError
-
-		# OTHER LINES
 		line = self.readline()
-		while( line and line != "" ) :
-			print "LINE: " + line
-			path = self.parseline(line)
-			#print path
+		while (line and line !="") :
+			(path, number_of_parentheses) = self.parseline(line)
+			if tree.root is not None:
+				tree.move_up()
+			while (path) :
+				tree.append_to_current_node( path.pop(0) )	
+			
+			print reduce(lambda x, y: x + " " +y, tree.get_path_to_current_node())
+			for i in xrange(0, number_of_parentheses ):
+				tree.move_up()
 			line = self.readline()
-				
-		return curr_tree
+			
+		return tree
+
 	
 	def parseline(self, line):
 		""" get one tree source line and return path_to_terminal
@@ -145,8 +131,7 @@ class TreeBank:
 			path.append(last[0:i])
 			terminal = last[i:]
 		else     : 
-			print "ERROR: "
-			exit(0) # Error
+			sys.exit(1) # ERROR: illegal terminal node
 
 		# add terminal ["그/MM"] and # of parentheses [1]
 		number_of_parentheses = 0
@@ -154,15 +139,15 @@ class TreeBank:
 			terminal = terminal[0:-1]
 			number_of_parentheses += 1
 		path.append(terminal)
-		path.append(number_of_parentheses)
 		
-		return path
+		return path, number_of_parentheses
 
 	def readline(self):
 		line = self.file.readline()
 
+		# EOF
 		# immediately exits the program when EOF is encounterd
-		if (line == '') : exit(0)
+		if (line == '') : sys.exit(0)
 
 		if (line[0:2] == '; '):
 			return line.rstrip()
@@ -207,24 +192,41 @@ class Word:
 
 class Tree:
 	def __init__(self, id, sentence):
+		self.id = id
 		self.sentence = Sentence(id, sentence)
 		self.root = None
-		self.curr_node = None
+		self.current_node = None
+
+	def __str__(self):
+		return self.id	
+
+	def get_path_to_current_node(self):
+		p = []
+		n = self.current_node
+		p.insert(0,n.name)
+		while ( n is not self.root):
+			n = n.parent	
+			p.insert(0,n.name)
+
+		return p
 
 	def set_root(self, name):
 		self.root = Node(None, name)	
-		self.curr_node = self.root
+		self.current_node = self.root
 
 	def append_to_current_node(self, name):
-		node = Node(self.curr_node, name)
-		self.curr_node.append(node)
-		self.set_current_node(node)
+		if self.root is None:
+			self.set_root(name)
+		else :
+			node = Node(self.current_node, name)
+			self.current_node.append(node)
+			self.set_current_node(node)
 	
 	def set_current_node (self, node):
-		self.curr_node = node
+		self.current_node = node
 	
 	def move_up(self):
-		self.set_current_node(self.curr_node.parent)	
+		self.set_current_node(self.current_node.parent)	
 
 class Node:
 	def __init__(self, parent, name):
@@ -275,6 +277,7 @@ class Test:
 		for tree in treebank:
 			print "================ beg"
 			print tree	
+			print tree.id
 			print tree.sentence.form
 			print tree.root.name
 			print "================ end"
