@@ -73,10 +73,36 @@ class Test:
 		
 	def dep2trxml(self) :
 		for tree in self.dw:
-			print tree.id
-			for n in tree.nodes:
-				print n.ord, n.dep, n.tag1, n.tag2, n.form
+			self.print_nd_open(tree.id, "", "", 0)
+			root = self.find_root(tree.nodes) 
+			list = tree.nodes
+			list.remove(root)
+			self.print_node(list, root)
+			print "</nd>"
 
+
+	def find_root(self, list):
+		for n in list:
+			if n.ord == n.dep:
+				return n
+
+	def print_node(self, list, node):
+		self.print_nd_open(node.form, node.tag1, node.tag2, node.ord)
+		#list.remove(node)
+		for n in list:
+			if n.dep == node.ord:
+				self.print_node(list, n)
+				pass
+		print "</nd>"
+
+
+
+	def print_nd_open(self, form, tag1, tag2, ord):
+		print "<nd form=\"" + form  \
+				+ "\" tag1=\"" + tag1 \
+				+ "\" tag2=\"" + tag2 \
+				+ "\" ord=" + str(ord)  \
+		     	+ ">"
 
 if __name__ == '__main__':
 	file = codecs.open(sys.argv[1], encoding='utf-8')
