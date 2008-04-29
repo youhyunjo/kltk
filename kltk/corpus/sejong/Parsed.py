@@ -6,54 +6,59 @@
 """ Sejong Parsed Corpus distributed 2007-11-12
 
 
+The class ForestWalker is specific to the Sejong Parsed Corpus
+and all the other classes are general, i.e. reusable!
 
-TreeBank:
-	Tree[] trees
+USAGE:
 
-# A sentence string line begins with ";".
-# It's a raw string. Morphemes have to be taken
-# from the terminal nodes in the tree.
+You have a Sejong parsed corpus file named 'BGJO0150.bnk'. 
+At first, remove XML tags and check file encoding.
 
-Sentence:
-	string		id
-	string		form
-	Word[]		words
+	file = codecs.open('BGJO0150-noxml.bnk' encoding='utf-8')
+	fw = ForestWalker(file)
 
-Word:
-	string		form
-	Morph[]		morphs
+ForestWalker is an iterator of forest (treebank). It isn't the
+treebank itself. It does NOT load trees to the memory. It's
+light and fast!
 
-# The tree begins after the sentence line.
-# It's BINARY TREE.
+	for tree in fw:
+		do (tree)
 
-Tree:
-	string		id
-	Sentence	sentence
-	Node		root
+If you want to get a fully-loaded treebank object, try getTreeBank().
+It takes some time according to the file size. 
 
-Node:
-	string		name
-	Node		parent
-	Node		first_child
-	Node		second_child
-	int			ord
+	treebank = fw.getTreeBank()
 
-TerminalNode:
-	Word		word
-	int			ord
-	Node		parent
 
-Morph:
-	string		form
-	string		pos
-    
+CLASSES:
+
+ForestWalker
+
+TreeBank
+	Tree[]
+		Sentence
+			Word[]
+				Morph[]
+		Node
+
+TerminalNode
+
 """
 
 import codecs
 import sys
 
 
-class TreeBank:  
+class TreeParseError(Exception):
+	def __init__(self, message):
+		self.message = message
+	def __str__(self):
+		return repr(self.message)
+
+
+
+
+class ForestWalker:  
 	""" tree sample
 	; 그 신세계에 냉동 태아(冷凍 胎兒)가 등장한다.
 	(S      (NP_AJT         (DP 그/MM)
@@ -75,27 +80,50 @@ class TreeBank:
 		return self
 
 	def readtree(self): 
-		# read SENTENCE FORM
-		# read sentence form line and initialize a tree
-		line = self.readline()
+		# INITIALIZE
 		self.number_of_trees += 1
 		id = str(self.number_of_trees)
+
+		# SENTENCE FORM
+		# read sentence form line and initialize a tree
+		line = self.readline()
+
 		if (line[0:2] == '; '):
-			tree = Tree(id, line[2:])
+			i = 0
+			words = []
+			for w in line[2:].split(' '):
+				i += 1
+				words.append(Word(i, w))
+			
+			tree = Tree(id, Sentence(id, line[2:], words))
 		else:
+			print "ERROR: no sentence form line"
 			sys.exit(1) # ERROR: no sentence form line 
 
-		# PARSE TREE 
 
+		# PARSE TREE 
+		ord = 0
 		line = self.readline()
 		while (line and line !="") :
-			(path, number_of_parentheses) = self.parseline(line)
+			ord += 1
+
+			try :
+				(path, number_of_parentheses) = self.parseline(line)
+			except TreeParseError, e:
+				print "TreeParseError: ", e.message
+
 			if tree.root is not None:
 				tree.move_up()
-			while (path) :
-				tree.append_to_current_node( path.pop(0) )	
+
+			# NON-TERMINAL NODES
+			while (len(path) > 1) :
+				tree.add_child_to_current_node( Node(None, path.pop(0)) )	
+
+			# TERMINAL (LEXICAL) NODE
+			tnode = TerminalNode(ord, None, path.pop(0))
+			tree.add_child_to_current_node( tnode )
+			tree.lexical_nodes.append(tnode)
 			
-			print reduce(lambda x, y: x + " " +y, tree.get_path_to_current_node())
 			for i in xrange(0, number_of_parentheses ):
 				tree.move_up()
 			line = self.readline()
@@ -131,7 +159,8 @@ class TreeBank:
 			path.append(last[0:i])
 			terminal = last[i:]
 		else     : 
-			sys.exit(1) # ERROR: illegal terminal node
+			raise TreeParseError("Illegal terminal node")
+			#sys.exit(1) # ERROR: illegal terminal node
 
 		# add terminal ["그/MM"] and # of parentheses [1]
 		number_of_parentheses = 0
@@ -160,67 +189,51 @@ class TreeBank:
 	def next(self):
 		return self.readtree()
 
-class Sentence:
-	def __init__(self, id, form):
-		self.id = id
-		self.form = form
-		self.words = []
-		self.idx = 0
+
+
+class TreeBank:
+	def __init__(self):
+		pass
+
 		
-		# init words
-		ord = 0
-		for word in form.split(' '):
-			ord += 1
-			self.words.append(Word(ord, word))	
-	
-	def __iter__(self):
-		return self
-
-	def next(self):
-		if self.idx >= len(self.words):
-			raise StopIteration
-		w = self.words[self.idx]
-		self.idx += 1
-		return w
-
-
-class Word:
-	def __init__(self, ord, form):
-		self.ord = ord
-		self.form = form
-		self.morphs = []
-
 class Tree:
 	def __init__(self, id, sentence):
 		self.id = id
-		self.sentence = Sentence(id, sentence)
+		self.sentence = sentence 
 		self.root = None
 		self.current_node = None
+		self.lexical_nodes = []
 
 	def __str__(self):
 		return self.id	
 
 	def get_path_to_current_node(self):
+		return self.get_path_to_node(self.current_node)
+	
+	def get_path_to_node(self, node):
 		p = []
-		n = self.current_node
+		n = node
 		p.insert(0,n.name)
 		while ( n is not self.root):
 			n = n.parent	
 			p.insert(0,n.name)
 
-		return p
+		return p		
 
-	def set_root(self, name):
-		self.root = Node(None, name)	
-		self.current_node = self.root
+	def set_root(self, node):
+		self.root = node
+		self.root.set_head(True)
 
-	def append_to_current_node(self, name):
+	def add_child_to_current_node(self, node):
 		if self.root is None:
-			self.set_root(name)
+			self.set_root(node)
 		else :
-			node = Node(self.current_node, name)
-			self.current_node.append(node)
-			self.set_current_node(node)
+			self.add_child_to_node(self.current_node, node)
+
+		self.set_current_node(node)
+
+	def add_child_to_node(self, node, child):
+		node.add_child(child)
 	
 	def set_current_node (self, node):
 		self.current_node = node
@@ -234,21 +247,69 @@ class Node:
 		self.parent = parent
 		self.first_child = None
 		self.second_child = None
-		self.ord = 0
+		self.head_flag = False
 	
-	def append(self, node):
-		if self.first_child is None:
-			self.first_child = node
-		elif self.second_child is None :
-			self.second_child = node
-		else :
-			exit(0) # TreeError	
+	def is_head(self):
+		return self.head_flag
+	
+	def set_head(self, bool):
+		self.head_flag = bool	
+	
+	def set_parent(self, node):
+		self.parent = node
 
-class TerminalNode:
+	def add_child(self, node):
+		if self.first_child is None:
+			node.set_parent(self)
+			self.first_child = node
+			self.first_child.set_head(True)
+		elif self.second_child is None :
+			node.set_parent(self)
+			self.second_child = node
+			self.first_child.set_head(False)
+			self.second_child.set_head(True)
+		else :
+			print node.name
+			print "ERROR: more than 2 children"
+			sys.exit(0) # TreeError	: more than 2 children
+
+class TerminalNode (Node):
 	def __init__(self, ord, parent, word):
 		self.ord = ord
+		self.name = word
 		self.parent = parent
-		self.word = word
+		self.set_head(True)
+
+	def __str__(self):
+		return self.name
+		
+class Sentence:
+	def __init__(self, id, form, words):
+		self.id = id
+		self.form = form
+		self.words = words 
+		self.idx = 0
+		
+			
+	def __iter__(self):
+		return self
+
+	def next(self):
+		if self.idx >= len(self.words):
+			raise StopIteration
+		w = self.words[self.idx]
+		self.idx += 1
+		return w
+
+class Word:
+	def __init__(self, ord, form):
+		self.ord = ord
+		self.form = form
+		self.morphs = []
+	
+	def add_morph(self, morph):
+		self.morphs.append(morph)
+
 
 class Morph:
 	def __init__(self, form, pos):
@@ -257,7 +318,8 @@ class Morph:
  
 
 
-
+#===============================================================
+# CODE FOR TEST
 
 class Encode:
     def __init__(self, stdout, enc):
@@ -269,19 +331,39 @@ class Encode:
 
 class Test:
 	def __init__(self, file):
-		treebank = TreeBank(file)
-		self.test(treebank, 'utf8')
+		fw = ForestWalker(file)
+		self.test(fw, 'utf8')
 
-	def test(self, treebank, enc):
+	def test(self, fw, enc):
 		sys.stdout = Encode(sys.stdout, enc)
-		for tree in treebank:
-			print "================ beg"
-			print tree	
-			print tree.id
-			print tree.sentence.form
-			print tree.root.name
-			print "================ end"
-			
+		for tree in fw:
+			#print "================ beg"
+			#print "TREE_ID: ", tree.id
+			print tree.id, ";", tree.sentence.form
+			#print "ROOT_NODE: ", tree.root.name
+			for t in  tree.lexical_nodes:
+				#print reduce( lambda x, y :  x+" "+y, tree.get_path_to_node(t))
+				dep_parent_ord, dep_name = self.get_dep_parent_of_node(t)
+				print "%s\t%s\t%s\t%s\t%s" % (t.ord, dep_parent_ord, dep_name, t.parent.name, t.name)
+			print
+			#print "================ end"
+
+	def get_dep_parent_of_node(self, node):
+		while(node.is_head() and node.parent is not None):
+			node = node.parent
+
+
+		dep_name = node.name
+		if node.parent is not None: 
+			node = node.parent
+
+		while(node.__class__ is not TerminalNode):
+			if node.second_child is None:
+				node = node.first_child
+			else :
+				node = node.second_child
+
+		return node.ord, dep_name
 		
 if __name__ == '__main__':
 	file = codecs.open(sys.argv[1], encoding='utf-8')
