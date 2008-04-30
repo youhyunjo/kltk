@@ -47,7 +47,7 @@ TerminalNode
 
 import codecs
 import sys
-
+import re
 
 class TreeParseError(Exception):
 	def __init__(self, message):
@@ -90,12 +90,8 @@ class ForestWalker:
 
 		if (line[0:2] == '; '):
 			i = 0
-			words = []
-			for w in line[2:].split(' '):
-				i += 1
-				words.append(Word(i, w))
-			
-			tree = Tree(id, Sentence(id, line[2:], words))
+			sentence_form = line[2:]
+			tree = Tree(id, Sentence(id, sentence_form, None))
 		else:
 			print "ERROR: no sentence form line"
 			sys.exit(1) # ERROR: no sentence form line 
@@ -120,7 +116,14 @@ class ForestWalker:
 				tree.add_child_to_current_node( Node(None, path.pop(0)) )	
 
 			# TERMINAL (LEXICAL) NODE
-			tnode = TerminalNode(ord, None, path.pop(0))
+			morph_string = path.pop(0)
+			morphs = self.parse_morph_string(morph_string)
+			w = Word(ord, morph_string, morphs)
+
+			#print tree.current_node.name, morph_string, w.form
+				
+
+			tnode = TerminalNode(ord, None, morph_string, w)
 			tree.add_child_to_current_node( tnode )
 			tree.lexical_nodes.append(tnode)
 			
@@ -130,7 +133,29 @@ class ForestWalker:
 			
 		return tree
 
-	
+	def parse_morph_string(self, morph_string):	
+		morphs = []
+
+		m = morph_string
+		for m in morph_string.split('+'):
+			m = m.strip()
+			if m == "" :
+				pass
+			else :
+				if m == "/SW":
+					form, pos = "+", "SW"
+				elif m[0:2] == "//":
+					form, pos = "/", m[2:]
+				else :
+					try :
+						form, pos = m.split("/")
+						if pos == "" : pos = "_ERR_"
+					except :
+						form, pos = m, "_ERR_"	
+				morphs.append(Morph(form,pos))
+		
+		return morphs
+
 	def parseline(self, line):
 		""" get one tree source line and return path_to_terminal
 		path_to_terminal corresponds to one line of TreeBank file.
@@ -199,7 +224,7 @@ class TreeBank:
 class Tree:
 	def __init__(self, id, sentence):
 		self.id = id
-		self.sentence = sentence 
+		self.sentence = sentence
 		self.root = None
 		self.current_node = None
 		self.lexical_nodes = []
@@ -274,9 +299,11 @@ class Node:
 			sys.exit(0) # TreeError	: more than 2 children
 
 class TerminalNode (Node):
-	def __init__(self, ord, parent, word):
+	def __init__(self, ord, parent, morph_string, word):
 		self.ord = ord
-		self.name = word
+		self.name = word.form
+		self.morph_string = morph_string
+		self.word = word
 		self.parent = parent
 		self.set_head(True)
 
@@ -302,13 +329,25 @@ class Sentence:
 		return w
 
 class Word:
-	def __init__(self, ord, form):
+	def __init__(self, ord, form, morphs):
 		self.ord = ord
 		self.form = form
-		self.morphs = []
+		self.morphs = morphs
 	
 	def add_morph(self, morph):
 		self.morphs.append(morph)
+	
+	def __str__(self):
+		str = ""
+		for m in self.morphs:
+			if str == "":
+				str = m.form
+			elif m.pos[0] == "S" :
+				str += m.form
+			else :
+				str += "-" + m.form
+		return str
+		#return reduce(lambda x,y: x.form+"-"+y.form, self.morphs)
 
 
 class Morph:
@@ -344,7 +383,7 @@ class Test:
 			for t in  tree.lexical_nodes:
 				#print reduce( lambda x, y :  x+" "+y, tree.get_path_to_node(t))
 				dep_parent_ord, dep_name = self.get_dep_parent_of_node(t)
-				print "%s\t%s\t%s\t%s\t%s" % (t.ord, dep_parent_ord, dep_name, t.parent.name, t.name)
+				print "%s\t%s\t%s\t%s\t%s\t%s" % (t.ord, dep_parent_ord, dep_name, t.parent.name, t.word, t.name)
 			print
 			#print "================ end"
 
