@@ -17,8 +17,8 @@ class DepWalker:
 
 		line = self.readline()
 		while (line):
-			(ord, dep, tag1, tag2, form) = line.split("\t")	
-			tree.nodes.append(Node(ord, dep, tag1, tag2, form.strip()))
+			(ord, dep, tag1, tag2, word, morphs) = line.split("\t")	
+			tree.nodes.append(Node(ord, dep, tag1, tag2, word.strip(), morphs.strip()))
 			line = self.readline()
 
 		return tree
@@ -32,7 +32,7 @@ class DepWalker:
 		return line.strip()
 
 		fields = line.strip().split("\t")
-		if len(fields) == 5 :
+		if len(fields) == 6 :
 			return fields
 		else :
 			return line.strip()	
@@ -47,12 +47,13 @@ class Tree:
 		self.nodes = []
 
 class Node:
-	def __init__(self, ord, dep, tag1, tag2, form):
+	def __init__(self, ord, dep, tag1, tag2, word, morphs):
 		self.ord = ord
 		self.dep = dep
 		self.tag1 = tag1
 		self.tag2 = tag2
-		self.form = form
+		self.word = word
+		self.morphs = morphs
 
 
 #================
@@ -74,7 +75,7 @@ class Dep2FS:
 	def dep2fs(self) :
 		self.print_header()
 		for tree in self.dw:
-			self.print_nd_open(tree.id, "", "", 0, 0)
+			self.print_nd_open(tree.id, "", "", "", 0, 0)
 			sys.stdout.write("(")
 			root = self.find_root(tree.nodes) 
 			list = tree.nodes
@@ -88,7 +89,7 @@ class Dep2FS:
 				return n
 
 	def print_node(self, list, node, depth):
-		self.print_nd_open(node.form, node.tag1, node.tag2, node.ord, depth)
+		self.print_nd_open(node.word, node.morphs, node.tag1, node.tag2, node.ord, depth)
 		children = []
 		for n in list:
 			if n.dep == node.ord:
@@ -104,18 +105,18 @@ class Dep2FS:
 
 
 
-	def print_nd_open(self, form, tag1, tag2, ord, depth):
-		sys.stdout.write("[%s,%s,%s,%s]" % (form.replace(",","\\,").replace("]","\\]").replace("[","\\["), tag1.replace("]","\\]").replace("[","\\["), tag2.replace("]","\\]").replace("[","\\["), str(ord)))
+	def print_nd_open(self, word, morphs, tag1, tag2, ord, depth):
+		sys.stdout.write("[%s,%s,%s,%s,%s]" % 
+			(word.replace(",","\\,").replace("]","\\]").replace("[","\\[").replace("=", "\\="), 
+			morphs.replace(",","\\,").replace("]","\\]").replace("[","\\[").replace("=", "\\="), 
+			tag1.replace("]","\\]").replace("[","\\[").replace("=", "\\="), 
+			tag2.replace("]","\\]").replace("[","\\[").replace("=", "\\="), 
+			str(ord)))
 		
-	#	"[" + form.replace(",","\\,")  \
-# 				+ "," + tag1 \
-# 				+ "," + tag2 \
-# 				+ "," + str(ord)  \
-# 		     	+ "]"
-# 
 	def print_header(self):
 		print """@E utf-8
-@P form
+@P form 
+@P lemma
 @P afun
 @P tag
 @N ord
@@ -148,7 +149,7 @@ class Dep2TrXML:
 				return n
 
 	def print_node(self, list, node, depth):
-		self.print_nd_open(node.form, node.tag1, node.tag2, node.ord, depth)
+		self.print_nd_open(node.word, node.tag1, node.tag2, node.ord, depth)
 		has_child = False
 		for n in list:
 			if n.dep == node.ord:
@@ -158,8 +159,8 @@ class Dep2TrXML:
 
 
 
-	def print_nd_open(self, form, tag1, tag2, ord, depth):
-		print depth*"\t" + "<nd form='" + form  \
+	def print_nd_open(self, word, tag1, tag2, ord, depth):
+		print depth*"\t" + "<nd form='" + word  \
 				+ "' afun='" + tag1 \
 				+ "' tag='" + tag2 \
 				+ "' ord='" + str(ord)  \
