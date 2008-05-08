@@ -2,7 +2,7 @@
 #!/usr/bin/python
 # Converts dependency treebank to any format
 # $Id$ 
-""" coverts dep to any 
+""" dep2any : coverts dependency treebnak to any 
 
 currently converts only into TrEd fs format
 
