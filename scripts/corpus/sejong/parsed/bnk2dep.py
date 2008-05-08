@@ -1,16 +1,18 @@
 # -*- coding:utf-8; tab-width: 4 -*-
 #!/usr/bin/python
-# convert Sejong Parsed Corpus to dependency treebank
+# Converts Sejong Parsed Corpus to dependency treebank
 # $Id$
 
+""" bnk2dep : converts Sejong Parsed Corpus to dependency treebank
+
+USAGE:
+
+$ bnk2dep sejong-parsed.bnk > sejong-parsed.dep
+"""
 
 import codecs
 import sys
-import re
 import kltk.corpus.sejong.Parsed
-
-#===============================================================
-# CODE FOR TEST
 
 class Encode:
 	def __init__(self, stdout, enc):
