@@ -22,12 +22,12 @@ class Encode:
 		self.stdout.write(s.encode(self.encoding))
 
 
-class Test:
+class Convert:
 	def __init__(self, file):
 		fw = kltk.corpus.sejong.Parsed.ForestWalker(file)
-		self.test(fw, 'utf8')
+		self.bnk2dep(fw, 'utf8')
 
-	def test(self, fw, enc):
+	def bnk2dep(self, fw, enc):
 		sys.stdout = Encode(sys.stdout, enc)
 		for tree in fw:
 			#print "================ beg"
@@ -60,7 +60,7 @@ class Test:
 		
 if __name__ == '__main__':
 	file = codecs.open(sys.argv[1], encoding='utf-8')
-	Test(file)
+	Convert(file)
 	file.close()
 
 

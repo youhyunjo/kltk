@@ -29,7 +29,7 @@ class Encode:
 
 
 
-class Dep2FS:
+class Convert:
 	def __init__(self, file, output_encoding):
 		self.fw = ForestWalker(file)
 		sys.stdout = Encode(sys.stdout, output_encoding)
@@ -169,5 +169,5 @@ class Dep2TrXML:
 
 if __name__ == '__main__':
 	file = codecs.open(sys.argv[1], encoding='utf-8')
-	Dep2FS(file, 'utf-8')
+	Convert(file, 'utf-8')
 	file.close()
