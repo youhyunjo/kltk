@@ -59,27 +59,30 @@ class TreeParseError(Exception):
 
 
 
-
+# parsed corpus sample tree
+# ----------------
+# 	; 그 신세계에 냉동 태아(冷凍 胎兒)가 등장한다.
+# 	(S      (NP_AJT         (DP 그/MM)
+# 			 (NP_AJT 신/XPN + 세계/NNG + 에/JKB))
+# 	 (S      (NP_SBJ         (NP     (NP     (NP 냉동/NNG)
+# 									  (NP 태아/NNG))
+# 							  (NP_PRN         (L (/SS)
+# 											   (NP_PRN         (NP     (NP 冷凍/SH)
+# 																(NP 胎兒/SH))
+# 												(R_PRN )/SS))))
+# 			  (X_SBJ 가/JKS))
+# 	  (VP 등장/NNG + 하/XSV + ㄴ다/EF + ./SF)))
+# ----------------
 class ForestWalker:  
-	""" tree sample
-	; 그 신세계에 냉동 태아(冷凍 胎兒)가 등장한다.
-	(S      (NP_AJT         (DP 그/MM)
-			 (NP_AJT 신/XPN + 세계/NNG + 에/JKB))
-	 (S      (NP_SBJ         (NP     (NP     (NP 냉동/NNG)
-									  (NP 태아/NNG))
-							  (NP_PRN         (L (/SS)
-											   (NP_PRN         (NP     (NP 冷凍/SH)
-																(NP 胎兒/SH))
-												(R_PRN )/SS))))
-			  (X_SBJ 가/JKS))
-	  (VP 등장/NNG + 하/XSV + ㄴ다/EF + ./SF)))
-"""
 	def __init__(self, file):
 		self.file = file
 		self.number_of_trees = 0
 	
 	def __iter__(self):
 		return self
+
+	def next(self):
+		return self.readtree()
 
 	def readtree(self): 
 		# INITIALIZE
@@ -213,9 +216,6 @@ class ForestWalker:
 			return line.strip()
 
 		
-	def next(self):
-		return self.readtree()
-
 
 
 class TreeBank:

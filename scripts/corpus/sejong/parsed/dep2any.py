@@ -17,7 +17,7 @@ $ dep2any sejong-parsed.dep > sejong-parsed.fs
 import codecs
 import sys
 import re
-from kltk.corpus.sejong.DepTreeBank import ForestWalker
+from kltk.corpus.sejong.dep import ForestWalker
 
 class Encode:
     def __init__(self, stdout, enc):

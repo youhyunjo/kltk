@@ -12,7 +12,7 @@ $ bnk2dep sejong-parsed.bnk > sejong-parsed.dep
 
 import codecs
 import sys
-import kltk.corpus.sejong.Parsed
+import kltk.corpus.sejong.parsed
 
 class Encode:
 	def __init__(self, stdout, enc):
@@ -24,7 +24,7 @@ class Encode:
 
 class Convert:
 	def __init__(self, file):
-		fw = kltk.corpus.sejong.Parsed.ForestWalker(file)
+		fw = kltk.corpus.sejong.parsed.ForestWalker(file)
 		self.bnk2dep(fw, 'utf8')
 
 	def bnk2dep(self, fw, enc):
@@ -50,7 +50,7 @@ class Convert:
 		if node.parent is not None: 
 			node = node.parent
 
-		while(node.__class__ is not kltk.corpus.sejong.Parsed.TerminalNode):
+		while(node.__class__ is not kltk.corpus.sejong.parsed.TerminalNode):
 			if node.second_child is None:
 				node = node.first_child
 			else :

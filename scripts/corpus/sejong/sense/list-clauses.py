@@ -5,7 +5,7 @@
 import re
 import codecs
 import sys
-import kltk.corpus.sejong.Sense
+import kltk.corpus.sejong.sense
 
 class Encode:
    def __init__(self, stdout, enc):
@@ -22,7 +22,7 @@ TAG_SEP = re.compile('.*[^ ][+][^ ].*')
 
 
 file = codecs.open(sys.argv[1], 'r', 'utf-8')
-corpus = kltk.corpus.sejong.Sense.Corpus(file)
+corpus = kltk.corpus.sejong.sense.Corpus(file)
 sys.stdout = Encode(sys.stdout, 'utf-8')
 
 
