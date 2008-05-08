@@ -1,10 +1,14 @@
 # -*- coding: utf-8; tab-width: 4 -*-
 #!/usr/bin/python
-# Dependency Treebank 
+# Converts dependency treebank to any format
 # $Id$ 
-""" Sejong Dependency Treebank, converted 
-from Sejong Parsed Corpus (distributed at 2007-11-12)
-by phr2dep of kltk.corpus.sejong.Parsed
+""" coverts dep to any 
+
+currently converts only into TrEd fs format
+
+USAGE:
+
+$ dep2any sejong-parsed.dep > sejong-parsed.fs
 
 
 """
