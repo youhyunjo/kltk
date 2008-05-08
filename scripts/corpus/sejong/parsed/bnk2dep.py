@@ -1,0 +1,64 @@
+# -*- coding:utf-8; tab-width: 4 -*-
+#!/usr/bin/python
+# convert Sejong Parsed Corpus to dependency treebank
+# $Id$
+
+
+import codecs
+import sys
+import re
+import kltk.corpus.sejong.Parsed
+
+#===============================================================
+# CODE FOR TEST
+
+class Encode:
+	def __init__(self, stdout, enc):
+		self.stdout = stdout
+		self.encoding = enc
+	def write(self, s):
+		self.stdout.write(s.encode(self.encoding))
+
+
+class Test:
+	def __init__(self, file):
+		fw = kltk.corpus.sejong.Parsed.ForestWalker(file)
+		self.test(fw, 'utf8')
+
+	def test(self, fw, enc):
+		sys.stdout = Encode(sys.stdout, enc)
+		for tree in fw:
+			#print "================ beg"
+			#print "TREE_ID: ", tree.id
+			print tree.id, ";", tree.sentence.form
+			#print "ROOT_NODE: ", tree.root.name
+			for t in  tree.lexical_nodes:
+				#print reduce( lambda x, y :  x+" "+y, tree.get_path_to_node(t))
+				dep_parent_ord, dep_name = self.get_dep_parent_of_node(t)
+				print "%s\t%s\t%s\t%s\t%s\t%s" % (t.ord, dep_parent_ord, dep_name, t.parent.name, t.word, t.name)
+			print
+			#print "================ end"
+
+	def get_dep_parent_of_node(self, node):
+		while(node.is_head() and node.parent is not None):
+			node = node.parent
+
+
+		dep_name = node.name
+		if node.parent is not None: 
+			node = node.parent
+
+		while(node.__class__ is not kltk.corpus.sejong.Parsed.TerminalNode):
+			if node.second_child is None:
+				node = node.first_child
+			else :
+				node = node.second_child
+
+		return node.ord, dep_name
+		
+if __name__ == '__main__':
+	file = codecs.open(sys.argv[1], encoding='utf-8')
+	Test(file)
+	file.close()
+
+

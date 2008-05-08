@@ -3,8 +3,7 @@
 # Sejong Parsed Corpus
 # $Id$
 
-""" Sejong Parsed Corpus distributed 2007-11-12
-
+""" Sejong Parsed Corpus (distributed 2007-12-11)
 
 The class ForestWalker is specific to the Sejong Parsed Corpus
 and all the other classes are general, i.e. reusable!
@@ -157,7 +156,7 @@ class ForestWalker:
 		return morphs
 
 	def parseline(self, line):
-		""" get one tree source line and return path_to_terminal
+		""" get a tree source line and return path_to_terminal.
 		path_to_terminal corresponds to one line of TreeBank file.
 		It is a tuple of nodes, a terminal node and the number of 
 		parentheses at the end of the source line.
@@ -361,19 +360,20 @@ class Morph:
 # CODE FOR TEST
 
 class Encode:
-    def __init__(self, stdout, enc):
-        self.stdout = stdout
-        self.encoding = enc
-    def write(self, s):
-        self.stdout.write(s.encode(self.encoding))
+	def __init__(self, stdout, enc):
+		self.stdout = stdout
+		self.encoding = enc
+
+	def write(self, s):
+		self.stdout.write(s.encode(self.encoding))
 
 
 class Test:
 	def __init__(self, file):
 		fw = ForestWalker(file)
-		self.test(fw, 'utf8')
+		self.bnk2dep(fw, 'utf8')
 
-	def test(self, fw, enc):
+	def bnk2dep(self, fw, enc):
 		sys.stdout = Encode(sys.stdout, enc)
 		for tree in fw:
 			#print "================ beg"
