@@ -14,6 +14,9 @@ import codecs
 import sys
 import re
 
+# intra-package references
+from morph import Morph
+
 class ForestWalker:
 	def __init__(self, file):
 		self.file = file
@@ -161,11 +164,6 @@ class Word:
 		#return reduce(lambda x,y: x.form+"-"+y.form, self.morphs)
 
 
-class Morph:
-	def __init__(self, form, pos):
-		self.form = form
-		self.pos = pos
- 
 
 #================
 # TEST CODE
