@@ -1,5 +1,4 @@
 #-*- coding: utf-8; tab-width: 4 -*-
-#!/usr/bin/python
 # Sejong Sense Tagged Corpus
 # $Id$
 """Sejong Sense Tagged Corpus

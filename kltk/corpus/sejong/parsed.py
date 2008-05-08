@@ -50,6 +50,7 @@ import re
 
 # intra-package references
 from morph import Morph
+from word import Word
 
 class TreeParseError(Exception):
 	def __init__(self, message):
@@ -123,7 +124,7 @@ class ForestWalker:
 			# TERMINAL (LEXICAL) NODE
 			morph_string = path.pop(0)
 			morphs = self.parse_morph_string(morph_string)
-			w = Word(ord, morph_string, morphs)
+			w = Word(ord, morph_string, morphs, morph_string)
 
 			#print tree.current_node.name, morph_string, w.form
 				
@@ -329,29 +330,6 @@ class Sentence:
 		w = self.words[self.idx]
 		self.idx += 1
 		return w
-
-class Word:
-	def __init__(self, ord, form, morphs):
-		self.ord = ord
-		self.form = form
-		self.morphs = morphs
-	
-	def add_morph(self, morph):
-		self.morphs.append(morph)
-	
-	def __str__(self):
-		str = ""
-		for m in self.morphs:
-			if str == "":
-				str = m.form
-			elif m.pos[0] == "S" :
-				str += m.form
-			else :
-				str += "-" + m.form
-		return str
-		#return reduce(lambda x,y: x.form+"-"+y.form, self.morphs)
-
-
 
 #===============================================================
 # CODE FOR TEST

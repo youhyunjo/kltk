@@ -1,12 +1,9 @@
 # -*- coding: utf-8; tab-width: 4 -*-
-#!/usr/bin/python
-# Dependency Treebank 
+# Sejong Dependency Treebank 
 # $Id$ 
 """ Sejong Dependency Treebank, converted 
 from Sejong Parsed Corpus (distributed at 2007-11-12)
 by phr2dep of kltk.corpus.sejong.Parsed
-
-
 """
 
 
@@ -16,6 +13,7 @@ import re
 
 # intra-package references
 from morph import Morph
+from word import Word
 
 class ForestWalker:
 	def __init__(self, file):
@@ -134,36 +132,6 @@ class Node:
 	
 	def add_a_child(self, node):
 		self.children.append(node)
-
-class Word:
-	def __init__(self, ord, form, morphs, morph_string):
-		self.ord = ord
-		self.form = form
-		self.morphs = morphs
-		self.morph_string = morph_string
-	
-	def add_morph(self, morph):
-		self.morphs.append(morph)
-	
-	def has_pos(self, pos):
-		for m in self.morphs:
-			if m.pos == pos :
-				return True
-		return False
-
-	def __str__(self):
-		str = ""
-		for m in self.morphs:
-			if str == "":
-				str = m.form
-			elif m.pos[0] == "S" :
-				str += m.form
-			else :
-				str += "-" + m.form
-		return str
-		#return reduce(lambda x,y: x.form+"-"+y.form, self.morphs)
-
-
 
 #================
 # TEST CODE
