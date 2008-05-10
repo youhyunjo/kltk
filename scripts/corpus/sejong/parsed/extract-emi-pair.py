@@ -1,5 +1,5 @@
-# -*- coding: utf-8; tab-width: 4 -*-
 #!/usr/bin/python
+# -*- coding: utf-8; tab-width: 4 -*-
 # Extracts emi dependency pairs 
 # $Id$ 
 """ extract-emi-pair : extracts emi dependency pairs 
