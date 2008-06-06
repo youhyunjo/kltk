@@ -50,7 +50,7 @@ import re
 
 # intra-package references
 from morph import Morph
-from word import Word
+from morph import Word
 
 class TreeParseError(Exception):
 	def __init__(self, message):

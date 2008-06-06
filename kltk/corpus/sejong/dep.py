@@ -4,6 +4,29 @@
 """ Sejong Dependency Treebank, converted 
 from Sejong Parsed Corpus (distributed at 2007-11-12)
 by phr2dep of kltk.corpus.sejong.Parsed
+
+USAGE:
+
+Suppose you have a Sejong Dependency Treebank file named "sejong.dep".
+
+	from kltk.corpus.sejong.dep import ForestWalker
+
+	file = codecs.open('sejong.dep', encoding='utf-8')
+	fw = ForestWalker(file)
+
+ForestWalker is an iterator of forest (treebank). It isn't
+the treebank itself. It does NOT load trees into the memory.
+
+	for tree in fw:
+		do (tree)
+
+If you want to get a fully-loaded treebank object, try getTreeBank().
+It takes some time according to the file size.
+
+	treebank = fw.getTreeBank()
+
+
+
 """
 
 
@@ -13,7 +36,7 @@ import re
 
 # intra-package references
 from morph import Morph
-from word import Word
+from morph import Word
 
 class ForestWalker:
 	def __init__(self, file):
