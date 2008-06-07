@@ -1,46 +1,33 @@
 #-*- coding: utf-8; tab-width: 4 -*-
-# Sejong Sense Tagged Corpus
+# Sejong Sense Tagged Corpus Reader
 # $Id$
-"""Sejong Sense Tagged Corpus
 
-The Sejong sense tagged corpus consists of records:
-    word + sense tag + pos tag
+"""
+Sejong Sense Tagged Corpus Reader.
 
-for example:
 
-2BT_0010000010  1.          1/SN + ./SF
-2BT_0010000020  아름다운      아름답/VA + ㄴ/ETM
-2BT_0010000030  그          그/MM
-2BT_0010000040  시작        시작_01/NNG
+corpus sample::
+
+	2BT_0010000010  1.          1/SN + ./SF
+	2BT_0010000020  아름다운      아름답/VA + ㄴ/ETM
+	2BT_0010000030  그          그/MM
+	2BT_0010000040  시작        시작_01/NNG
 
 A record has 3 columns:
 
-    1st column : corpus-wide global index
-    2nd column : orthographical form
-    3rd column : list of morphemes
+	- 1st column : corpus-wide global index
+	- 2nd column : orthographical form
+	- 3rd column : list of morphemes
 
 A list of morphemes:
 
-    morpheme_semtag/postag + ... 
+	- morpheme_semtag/postag + ... 
 
 
-Structure:
+Usage
+=====
 
-    Corpus
-        Sentence[]
-            gid = the gid of the first word
-            form
-            Word[]
-                gid = global index
-                ord = order in the sentence
-                form
-                Morph[]
-                    form
-                    sem
-                    pos
-
-
-Ussage:
+example::
 
     file = codecs.open(filename, encodeing='utf-8')
     corpus = Corpus(file)
@@ -49,18 +36,46 @@ Ussage:
 
     for sentence in corpus:
         print sentence
+
+
+
+Structure
+=========
+
+::
+
+    Corpus
+        Sentence[]
+            gid = the gid of the first word
+            form
+            Word[]
+                gid = global index
+				ord = order in the sentence
+                form
+                Morph[]
+                    form
+                    sem
+                    pos
+
 """
+__docformat__ = 'restructuredtext'
+
+
 import re
 
 class Word:
-    """A word in a sentence
+    """
+	A word in a sentence.
+
+	parameters
+	==========
         gid : global index
         ord : order in the sentence
         form
         Morph[]
         ord: order in the word
-            form
-            pos
+        form
+        pos
     """
     def __init__(self, gid, ord, form, morphlist_raw_str):
         self.gid = gid
@@ -80,17 +95,17 @@ class Word:
         s = re.compile(".*"+str+".*")
         return s.match(self.morphlist_raw_str)
 
-
-class Morph:
-    """A morpheme with a pos tag
-
-    str  : raw string
-    ord  : order in the word
-    form :
-    pos  :
-	sem  : 00 for non-specified
-    """
-    def __init__(self, morph_str):  
+    
+class Morph: 
+   """
+   A morpheme with a pos tag
+   -str  : raw string
+   -ord  : order in the word
+   -form :
+   -pos  :
+   -sem  : 00 for non-specified
+   """
+   def __init__(self, morph_str):  
         self.str = morph_str
         if(morph_str == "//SP"):
             self.form = "/"
@@ -144,7 +159,7 @@ SF = re.compile('.*[/]SF.*')
 TEXT_LINE = re.compile("^9BS.*")
 
 class Corpus:
-    """Sejong Sense Tagged Corpus
+    """Sejong Sense Tagged Corpus.
     """
     def __init__(self, file):
         self.file = file

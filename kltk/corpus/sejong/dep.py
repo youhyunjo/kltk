@@ -1,34 +1,43 @@
 # -*- coding: utf-8; tab-width: 4 -*-
 # Sejong Dependency Treebank 
 # $Id$ 
-""" Sejong Dependency Treebank, converted 
+
+"""
+Sejong Dependency Treebank Reader. 
+
+The treebank converted 
 from Sejong Parsed Corpus (distributed at 2007-11-12)
-by phr2dep of kltk.corpus.sejong.Parsed
+by bnk2dep.py script. 
 
 USAGE:
 
 Suppose you have a Sejong Dependency Treebank file named "sejong.dep".
+
+::
 
 	from kltk.corpus.sejong.dep import ForestWalker
 
 	file = codecs.open('sejong.dep', encoding='utf-8')
 	fw = ForestWalker(file)
 
-ForestWalker is an iterator of forest (treebank). It isn't
+L{ForestWalker} is an iterator of forest (treebank). It isn't
 the treebank itself. It does NOT load trees into the memory.
+
+::
 
 	for tree in fw:
 		do (tree)
 
-If you want to get a fully-loaded treebank object, try getTreeBank().
+If you want to get a fully-loaded L{TreeBank} object, try getTreeBank().
 It takes some time according to the file size.
+
+::
 
 	treebank = fw.getTreeBank()
 
 
 
 """
-
 
 import codecs
 import sys
@@ -39,27 +48,35 @@ from morph import Morph
 from morph import Word
 
 class ForestWalker:
+	"""ForestWlaker
+	"""
 	def __init__(self, file):
+		"""
+		@param file: Sejong Dependency Treebank file
+		@type file: file object
+		"""
 		self.file = file
 	
 	def __iter__(self):
 		return self
 	
 	def readtree(self):
-
+		"""
+		@rtype: L{Tree}
+		"""
 		# read sentence form line
-		line = self.readline()
+		line = self._readline()
 		tree = Tree(line.split(' ')[0])
 
 		# make list of nodes
 		list_of_nodes = []
-		line = self.readline()
+		line = self._readline()
 		while (line):
 			(ord, dep, tag1, tag2, wordform, morph_string) = line.split("\t")	
-			morphs = self.parse_morph_string(morph_string)
+			morphs = self._parse_morph_string(morph_string)
 			word = Word(ord, wordform, morphs, morph_string)
 			list_of_nodes.append(Node(ord, dep, tag1, tag2, word))
-			line = self.readline()
+			line = self._readline()
 
 		# make tree with list of nodes
 		# set parent-child relations
@@ -74,7 +91,10 @@ class ForestWalker:
 		tree.nodes = list_of_nodes
 		return tree
 	
-	def parse_morph_string(self, morph_string):
+	def _parse_morph_string(self, morph_string):
+		"""
+		@rtype: list of L{Morph}
+		"""
 		morphs = []
 
 		m = morph_string
@@ -99,7 +119,11 @@ class ForestWalker:
 
 
 
-	def readline(self):
+	def _readline(self):
+		"""
+		@rtype: string or list
+		@return: a line of the treebank source or a list of fields
+		"""
 		line = self.file.readline()
 
 		# EOF
@@ -119,9 +143,15 @@ class ForestWalker:
 
 
 class TreeBank:
+	"""
+	@status: Not yet implemented
+	"""
 	pass
 	
 class Tree:
+	"""
+	Dependency Tree
+	"""
 	def __init__(self, id):
 		self.id = id
 		self.nodes = []
@@ -129,9 +159,17 @@ class Tree:
 		self.terminals = []
 	
 	def set_root(self, node):
+		"""
+		@param node: node 
+		@type node: L{Node}
+		"""
 		self.root = node
 	
 	def get_terminals(self):
+		"""
+		@rtype: list of L{Node}
+		@return: list of terminal (lexical) nodes
+		"""
 		if self.terminals :
 			pass
 		else:
@@ -143,7 +181,23 @@ class Tree:
 
 
 class Node:
+	"""
+	Node of Dependency L{Tree}
+	"""
 	def __init__(self, ord, dep, tag1, tag2, word):
+		"""
+		@param ord: order in the sentence
+		@type ord: int
+		@param dep: order of the parent
+		@type dep: int
+		@param tag1: label
+		@type tag1: string
+		@param tag2: label
+		@type tag2: string
+		@param word: word
+		@type word: L{morph.Word}
+
+		"""
 		self.parent = None
 		self.children = []
 		self.ord = ord

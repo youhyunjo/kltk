@@ -3,47 +3,73 @@
 # Sejong Parsed Corpus
 # $Id$
 
-""" Sejong Parsed Corpus (distributed 2007-12-11)
+"""
+Sejong Parsed Corpus Reader. 
+Sejong Parsed Corpus (distributed 2007-12-11)
 
 The class ForestWalker is specific to the Sejong Parsed Corpus
 and all the other classes are general, i.e. reusable!
 
-USAGE:
+USAGE
+=====
 
 You have a Sejong parsed corpus file named 'BGJO0150.bnk'. 
 At first, remove XML tags and check file encoding.
+::
 
 	file = codecs.open('BGJO0150-noxml.bnk' encoding='utf-8')
 	fw = ForestWalker(file)
 
-ForestWalker is an iterator of forest (treebank). It isn't the
+L{ForestWalker} is an iterator of forest (treebank). It isn't the
 treebank itself. It does NOT load trees to the memory. It's
 light and fast!
+::
 
 	for tree in fw:
 		do (tree)
 
-If you want to get a fully-loaded treebank object, try getTreeBank().
+If you want to get a fully-loaded L{TreeBank} object, try getTreeBank().
 It takes some time according to the file size. 
+::
 
 	treebank = fw.getTreeBank()
 
 
-CLASSES:
+Classes
+=======
+classes::
 
-ForestWalker
+	ForestWalker
 
-TreeBank
-	Tree[]
-		Sentence
-			Word[]
-				Morph[]
-		Node
+	TreeBank
+		Tree[]
+			Sentence
+				Word[]
+					Morph[]
+			Node
 
-TerminalNode
+	TerminalNode
+
+
+Corpus sample
+=============
+
+parsed corpus sample tree::
+
+	; 그 신세계에 냉동 태아(冷凍 胎兒)가 등장한다.
+		(S      (NP_AJT         (DP 그/MM)
+				 (NP_AJT 신/XPN + 세계/NNG + 에/JKB))
+		 (S      (NP_SBJ         (NP     (NP     (NP 냉동/NNG)
+										  (NP 태아/NNG))
+								  (NP_PRN         (L (/SS)
+												   (NP_PRN         (NP     (NP 冷凍/SH)
+																	(NP 胎兒/SH))
+													(R_PRN )/SS))))
+				  (X_SBJ 가/JKS))
+		  (VP 등장/NNG + 하/XSV + ㄴ다/EF + ./SF)))
 
 """
-
+__docformat__ = 'epytext'
 import codecs
 import sys
 import re
@@ -60,21 +86,9 @@ class TreeParseError(Exception):
 
 
 
-# parsed corpus sample tree
-# ----------------
-# 	; 그 신세계에 냉동 태아(冷凍 胎兒)가 등장한다.
-# 	(S      (NP_AJT         (DP 그/MM)
-# 			 (NP_AJT 신/XPN + 세계/NNG + 에/JKB))
-# 	 (S      (NP_SBJ         (NP     (NP     (NP 냉동/NNG)
-# 									  (NP 태아/NNG))
-# 							  (NP_PRN         (L (/SS)
-# 											   (NP_PRN         (NP     (NP 冷凍/SH)
-# 																(NP 胎兒/SH))
-# 												(R_PRN )/SS))))
-# 			  (X_SBJ 가/JKS))
-# 	  (VP 등장/NNG + 하/XSV + ㄴ다/EF + ./SF)))
-# ----------------
 class ForestWalker:  
+	"""ForestWalker
+	"""
 	def __init__(self, file):
 		self.file = file
 		self.number_of_trees = 0
@@ -86,13 +100,16 @@ class ForestWalker:
 		return self.readtree()
 
 	def readtree(self): 
+		"""
+		@rtype: L{Tree}
+		"""
 		# INITIALIZE
 		self.number_of_trees += 1
 		id = str(self.number_of_trees)
 
 		# SENTENCE FORM
 		# read sentence form line and initialize a tree
-		line = self.readline()
+		line = self._readline()
 
 		if (line[0:2] == '; '):
 			i = 0
@@ -105,12 +122,12 @@ class ForestWalker:
 
 		# PARSE TREE 
 		ord = 0
-		line = self.readline()
+		line = self._readline()
 		while (line and line !="") :
 			ord += 1
 
 			try :
-				(path, number_of_parentheses) = self.parseline(line)
+				(path, number_of_parentheses) = self._parseline(line)
 			except TreeParseError, e:
 				print "TreeParseError: ", e.message
 
@@ -123,7 +140,7 @@ class ForestWalker:
 
 			# TERMINAL (LEXICAL) NODE
 			morph_string = path.pop(0)
-			morphs = self.parse_morph_string(morph_string)
+			morphs = self._parse_morph_string(morph_string)
 			w = Word(ord, morph_string, morphs, morph_string)
 
 			#print tree.current_node.name, morph_string, w.form
@@ -135,11 +152,16 @@ class ForestWalker:
 			
 			for i in xrange(0, number_of_parentheses ):
 				tree.move_up()
-			line = self.readline()
+			line = self._readline()
 			
 		return tree
 
-	def parse_morph_string(self, morph_string):	
+	def _parse_morph_string(self, morph_string):	
+		"""
+		@param morph_string: raw morphology string
+		@type morph_string: string
+		@rtype: list of L{Morph}s
+		"""
 		morphs = []
 
 		m = morph_string
@@ -162,15 +184,23 @@ class ForestWalker:
 		
 		return morphs
 
-	def parseline(self, line):
-		""" get a tree source line and return path_to_terminal.
+	def _parseline(self, line):
+		""" 
+		@param line: a source line from the treebank file
+		@type line: string
+		@rtype: list
+		@return: path_to_terminal
+
+		get a tree source line and return path_to_terminal.
 		path_to_terminal corresponds to one line of TreeBank file.
 		It is a tuple of nodes, a terminal node and the number of 
 		parentheses at the end of the source line.
 		for example,
 		
-		source line :			(S      (NP_AJT         (DP 그/MM)
-		path_to_terminal :    ["S", "NP_AJT", "DP", "그/MM", 1]
+		source line ::
+			(S      (NP_AJT         (DP 그/MM)
+		path_to_terminal ::    
+			["S", "NP_AJT", "DP", "그/MM", 1]
 		"""
 		temparr = line.split("\t")	
 
@@ -202,7 +232,11 @@ class ForestWalker:
 		
 		return path, number_of_parentheses
 
-	def readline(self):
+	def _readline(self):
+		"""
+		@rtype: string
+		@return: a line of treebank source
+		"""
 		line = self.file.readline()
 
 		# EOF
@@ -220,12 +254,23 @@ class ForestWalker:
 
 
 class TreeBank:
+	"""
+	@status: Not yet implemented
+	"""
 	def __init__(self):
 		pass
 
 		
 class Tree:
+	"""
+	"""
 	def __init__(self, id, sentence):
+		"""
+		@param id: sentence id
+		@type id: string
+		@param sentence: sentence
+		@type sentence: L{Sentence}
+		"""
 		self.id = id
 		self.sentence = sentence
 		self.root = None
@@ -236,9 +281,17 @@ class Tree:
 		return self.id	
 
 	def get_path_to_current_node(self):
+		"""
+		@rtype: list of L{Node}
+		"""
 		return self.get_path_to_node(self.current_node)
 	
 	def get_path_to_node(self, node):
+		"""
+		@param node: node
+		@type node: L{Node}
+		@rtype: list of L{Node}
+		"""
 		p = []
 		n = node
 		p.insert(0,n.name)
@@ -249,10 +302,18 @@ class Tree:
 		return p		
 
 	def set_root(self, node):
+		"""
+		@param node: root node
+		@type node: L{Node}
+		"""
 		self.root = node
 		self.root.set_head(True)
 
 	def add_child_to_current_node(self, node):
+		"""
+		@param node: child node
+		@type node: L{Node}
+		"""
 		if self.root is None:
 			self.set_root(node)
 		else :
@@ -261,9 +322,19 @@ class Tree:
 		self.set_current_node(node)
 
 	def add_child_to_node(self, node, child):
+		"""
+		@param node: node
+		@type node: L{Node}
+		@param node: child node
+		@type child: L{Node}
+		"""
 		node.add_child(child)
 	
 	def set_current_node (self, node):
+		"""
+		@param node: node
+		@type node: L{Node}
+		"""
 		self.current_node = node
 	
 	def move_up(self):
@@ -271,6 +342,12 @@ class Tree:
 
 class Node:
 	def __init__(self, parent, name):
+		"""
+		@param parent: parent node
+		@type parent: L{Node}
+		@param name: node name
+		@type name: string
+		"""
 		self.name = name
 		self.parent = parent
 		self.first_child = None
@@ -278,15 +355,26 @@ class Node:
 		self.head_flag = False
 	
 	def is_head(self):
+		"""
+		@rtype: boolean
+		"""
 		return self.head_flag
 	
 	def set_head(self, bool):
 		self.head_flag = bool	
 	
 	def set_parent(self, node):
+		"""
+		@param node: parent node
+		@type node: L{Node}
+		"""
 		self.parent = node
 
 	def add_child(self, node):
+		"""
+		@param node: child node
+		@type node: L{Node}
+		"""
 		if self.first_child is None:
 			node.set_parent(self)
 			self.first_child = node
@@ -303,6 +391,16 @@ class Node:
 
 class TerminalNode (Node):
 	def __init__(self, ord, parent, morph_string, word):
+		"""
+		@param	ord:		ord in the sentence
+		@type	ord:		int
+		@param	parent:		parent node
+		@type	parent:		L{Node}
+		@param	morph_string: morphology string
+		@type	morph_string: string
+		@param	word:		word
+		@type	word:		L{Word}
+		"""
 		self.ord = ord
 		self.name = word.form
 		self.morph_string = morph_string
@@ -315,6 +413,14 @@ class TerminalNode (Node):
 		
 class Sentence:
 	def __init__(self, id, form, words):
+		"""
+		@param id: sentence id
+		@type id: string
+		@param form: sentence form
+		@type form: string
+		@param words: list of words
+		@type words: list of L{Word}
+		"""
 		self.id = id
 		self.form = form
 		self.words = words 
