@@ -32,9 +32,21 @@ class Word:
 		@type morph_string: string
 		"""
 		self.ord = ord
+		"""
+		@type: int
+		"""
 		self.form = form
+		"""
+		@type: string
+		"""
 		self.morphs = morphs
+		"""
+		@type: list of L{Morph}s
+		"""
 		self.morph_string = morph_string
+		"""
+		@type: string
+		"""
 	
 	def add_morph(self, morph):
 		"""
@@ -79,7 +91,13 @@ class Morph:
 		@type pos: string
 		"""
 		self.form = form
+		"""
+		@type: string
+		"""
 		self.pos = pos
+		"""part of speech tag
+		@type: string
+		"""
 
 
 

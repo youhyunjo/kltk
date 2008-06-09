@@ -154,9 +154,21 @@ class Tree:
 	"""
 	def __init__(self, id):
 		self.id = id
+		"""
+		@type: string
+		"""
 		self.nodes = []
+		"""
+		@type: list of L{Node}
+		"""
 		self.root = None
+		"""
+		@type: L{Node}
+		"""
 		self.terminals = []
+		"""
+		@type: list of L{Node}
+		"""
 	
 	def set_root(self, node):
 		"""
@@ -168,8 +180,9 @@ class Tree:
 	def get_terminals(self):
 		"""
 		@rtype: list of L{Node}
-		@return: list of terminal (lexical) nodes
-		"""
+		@return: list of terminal nodes
+		@warning: Remember this is a dependency tree!
+		""
 		if self.terminals :
 			pass
 		else:
@@ -195,17 +208,41 @@ class Node:
 		@param tag2: label
 		@type tag2: string
 		@param word: word
-		@type word: L{morph.Word}
+		@type word: L{Word}
 
 		"""
 		self.parent = None
+		"""parent node
+		@type: L{Node}
+		"""
 		self.children = []
+		"""list of child nodes
+		@type: list of L{Node}s
+		"""
 		self.ord = ord
+		"""
+		@type: int
+		"""
 		self.dep = dep
+		"""ord of parent node
+		@type: int
+		"""
 		self.tag1 = tag1
+		"""
+		@type: string
+		"""
 		self.tag2 = tag2
+		"""
+		@type: string
+		"""
 		self.form = word.form
+		"""
+		@type: string
+		"""
 		self.word = word
+		"""
+		@type: L{Word}
+		"""
 	
 	def add_a_child(self, node):
 		self.children.append(node)
