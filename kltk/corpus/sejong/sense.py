@@ -58,7 +58,7 @@ Structure
                     pos
 
 """
-__docformat__ = 'restructuredtext'
+#__docformat__ = 'restructuredtext'
 
 
 import re
@@ -66,45 +66,53 @@ import re
 class Word:
     """
 	A word in a sentence.
-
-	parameters
-	==========
-        gid : global index
-        ord : order in the sentence
-        form
-        Morph[]
-        ord: order in the word
-        form
-        pos
     """
-    def __init__(self, gid, ord, form, morphlist_raw_str):
+    def __init__(self, gid, ord, form, morph_string):
         self.gid = gid
+        """
+        @type: string
+        """
         self.ord = ord
+        """
+        @type: int
+        """
         self.form = form
-        self.morphlist_raw_str = morphlist_raw_str
+        """
+        @type: string
+        """
+        self.morph_string = morph_string
+        """
+        @type: string
+        """
 
         self.morphlist =  []
+        """
+        @type: list of L{Morph}
+        """
         
-        for morph_raw_str in morphlist_raw_str.split(' + '):
+        for morph_raw_str in morph_string.split(' + '):
             self.morphlist.append(Morph(morph_raw_str.replace(" ", "")))
+
     def str__(self):
         return self.form
     def encode(self, enc):
         return self.form.encode(enc)
     def has(self, str):
         s = re.compile(".*"+str+".*")
-        return s.match(self.morphlist_raw_str)
+        return s.match(self.morph_string)
 
     
 class Morph: 
    """
-   A morpheme with a pos tag
+   Morphology: a morpheme with a sense tag and a pos tag.
+
    -str  : raw string
    -ord  : order in the word
    -form :
    -pos  :
    -sem  : 00 for non-specified
    """
+
    def __init__(self, morph_str):  
         self.str = morph_str
         if(morph_str == "//SP"):
@@ -167,39 +175,40 @@ class Corpus:
     def __iter__(self):
         return self
 
-    def readline(self):
+    def _readline(self):
 		line = self.file.readline()
 
-		# immediately exits the program when EOF is encountered
-		if (line == "") : exit(0)
+		# raise StopIteration when EOF is encountered
+		if (line == "") : 
+            raise StopIteration
 
 		if TEXT_LINE.match(line) :
 			try:
-				(gid, form, morph_arr) = line.strip().split('\t')
+				(gid, form, morph_string) = line.strip().split('\t')
 			except UnicodeDecodeError:
-				(gid, form, morph_arr) = ('NULL', 'UnicodeDecodeError', 'NULL')
+				(gid, form, morph_string) = ('NULL', 'UnicodeDecodeError', 'NULL')
 			except ValueError:
-				(gid, form, morph_arr) = ('NULL', line, 'NULL')
-			return (gid, form, morph_arr)
+				(gid, form, morph_string) = ('NULL', line, 'NULL')
+			return (gid, form, morph_string)
 		else :
 			# ignores current line and processes next line
-			return self.readline()	
+			return self._readline()	
 				  
     def readsentence(self):
 
         # read first word
         ord = 1
-        line = self.readline()
-        (gid, form, morph_arr) = line
-        first_word = Word(gid, ord, form, morph_arr)
+        line = self._readline()
+        (gid, form, morph_string) = line
+        first_word = Word(gid, ord, form, morph_string)
         curr_sentence = Sentence(first_word)
 
         # read following words
-        while((not SF.match(morph_arr)) and line):
+        while((not SF.match(morph_string)) and line):
             ord = ord + 1
-            line = self.readline()
-            (gid, form, morph_arr) = line
-            curr_sentence.append(Word(gid, ord, form, morph_arr))
+            line = self._readline()
+            (gid, form, morph_string) = line
+            curr_sentence.append(Word(gid, ord, form, morph_string))
 
         return curr_sentence
 

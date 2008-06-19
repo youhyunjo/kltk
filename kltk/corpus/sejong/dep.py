@@ -182,7 +182,7 @@ class Tree:
 		@rtype: list of L{Node}
 		@return: list of terminal nodes
 		@warning: Remember this is a dependency tree!
-		""
+		"""
 		if self.terminals :
 			pass
 		else:
