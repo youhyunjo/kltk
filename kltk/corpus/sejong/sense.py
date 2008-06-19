@@ -5,7 +5,6 @@
 """
 Sejong Sense Tagged Corpus Reader.
 
-
 corpus sample::
 
     2BT_0010000010  1.          1/SN + ./SF
