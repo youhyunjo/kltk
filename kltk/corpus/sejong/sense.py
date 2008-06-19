@@ -8,20 +8,20 @@ Sejong Sense Tagged Corpus Reader.
 
 corpus sample::
 
-	2BT_0010000010  1.          1/SN + ./SF
-	2BT_0010000020  아름다운      아름답/VA + ㄴ/ETM
-	2BT_0010000030  그          그/MM
-	2BT_0010000040  시작        시작_01/NNG
+    2BT_0010000010  1.          1/SN + ./SF
+    2BT_0010000020  아름다운      아름답/VA + ㄴ/ETM
+    2BT_0010000030  그          그/MM
+    2BT_0010000040  시작        시작_01/NNG
 
 A record has 3 columns:
 
-	- 1st column : corpus-wide global index
-	- 2nd column : orthographical form
-	- 3rd column : list of morphemes
+    - 1st column : corpus-wide global index
+    - 2nd column : orthographical form
+    - 3rd column : list of morphemes
 
 A list of morphemes:
 
-	- morpheme_semtag/postag + ... 
+    - morpheme_semtag/postag + ... 
 
 
 Usage
@@ -50,7 +50,7 @@ Structure
             form
             Word[]
                 gid = global index
-				ord = order in the sentence
+                ord = order in the sentence
                 form
                 Morph[]
                     form
@@ -65,7 +65,7 @@ import re
 
 class Word:
     """
-	A word in a sentence.
+    A word in a sentence.
     """
     def __init__(self, gid, ord, form, morph_string):
         self.gid = gid
@@ -118,7 +118,7 @@ class Morph:
         if(morph_str == "//SP"):
             self.form = "/"
             self.pos = "SP"
-			self.sem = "00"
+            self.sem = "00"
         else:
             temp = morph_str.split('/')
             if len(temp) == 2:
@@ -130,7 +130,7 @@ class Morph:
             else:
                 self.form = morph_str
                 self.pos = 'SOURCE_ERROR'
-				self.sem = '00'
+                self.sem = '00'
 
 class Sentence:
     def __init__(self, first_word):
@@ -176,24 +176,24 @@ class Corpus:
         return self
 
     def _readline(self):
-		line = self.file.readline()
+        line = self.file.readline()
 
-		# raise StopIteration when EOF is encountered
-		if (line == "") : 
+        # raise StopIteration when EOF is encountered
+        if (line == "") : 
             raise StopIteration
 
-		if TEXT_LINE.match(line) :
-			try:
-				(gid, form, morph_string) = line.strip().split('\t')
-			except UnicodeDecodeError:
-				(gid, form, morph_string) = ('NULL', 'UnicodeDecodeError', 'NULL')
-			except ValueError:
-				(gid, form, morph_string) = ('NULL', line, 'NULL')
-			return (gid, form, morph_string)
-		else :
-			# ignores current line and processes next line
-			return self._readline()	
-				  
+        if TEXT_LINE.match(line) :
+            try:
+                (gid, form, morph_string) = line.strip().split('\t')
+            except UnicodeDecodeError:
+                (gid, form, morph_string) = ('NULL', 'UnicodeDecodeError', 'NULL')
+            except ValueError:
+                (gid, form, morph_string) = ('NULL', line, 'NULL')
+            return (gid, form, morph_string)
+        else :
+            # ignores current line and processes next line
+            return self._readline() 
+                  
     def readsentence(self):
 
         # read first word
