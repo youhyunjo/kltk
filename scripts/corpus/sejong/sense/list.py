@@ -49,10 +49,19 @@ class Lister:
                 for morph in word.morphlist:
                     print morph.str
 
+
     def printSentenceList(self):
         for sentence in self.corpus:
             print sentence.form
 
+
+    def printSentenceWithMorph(self):
+        for sentence in self.corpus:
+            morphstring = ""
+            for word in sentence.wordlist:
+                for morph in word.morphlist:
+                    morphstring = morphstring + " " + morph.str
+            print sentence.gid + "#####!#####" + sentence.form + "#####!#####" + morphstring
 
 #
 # main
@@ -83,6 +92,8 @@ if __name__ == '__main__':
         lister.printSenseList()
     elif command == "sentences":
         lister.printSentenceList()
+    elif command == "h":
+        lister.printSentenceWithMorph()
     else:
         print >> sys.stderr, __doc__
         exit(1)
