@@ -29,7 +29,7 @@ class Encode:
         self.stdout.write(s.encode(self.encoding))
 
 
-class SejongSenseLister:
+class Lister:
     """ """
     def __init__(self, file):
         self.corpus = Corpus(file)
@@ -55,16 +55,26 @@ class SejongSenseLister:
         for sentence in self.corpus:
             print sentence.form
 
+
+#
+# main
+#
 if __name__ == '__main__':
     try:
         command = sys.argv[1]
-        file = codecs.open(sys.argv[2], encoding='utf-8')
-
-        lister = SejongSenseLister(file)
+        filename = sys.argv[2]
     except:
-        print __doc__
+        print >> sys.stderr, __doc__
         exit(1)
 
+    try :
+        file = codecs.open(filename, encoding='utf-8')
+    except IOError, e:
+        print >> sys.stderr, e
+        exit(1)
+
+        
+    lister = Lister(file)
     sys.stdout = Encode(sys.stdout, 'utf8')
 
     if command == "words" :
@@ -74,9 +84,9 @@ if __name__ == '__main__':
     elif command == "senses":
         lister.printSenseList()
     elif command == "sentences":
-            lister.printSentenceList()
+        lister.Printsentencelist()
     else:
-        print __doc__
+        print >> sys.stderr, __doc__
         exit(1)
 
     file.close()
