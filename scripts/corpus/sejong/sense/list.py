@@ -10,9 +10,7 @@ USAGE : list unit filename
 $ list words sejong-sense.txt > words.list
 $ list morphs sejong-sense.txt > morphs.list
 $ list senses sejong-sense.txt > senses.list
-
 $ list sentences sejong-sense.txt > sentences.list
-$ list clauses sejong-sense.txt > clauses.list
 
 $Id$
 """
@@ -84,7 +82,7 @@ if __name__ == '__main__':
     elif command == "senses":
         lister.printSenseList()
     elif command == "sentences":
-        lister.Printsentencelist()
+        lister.printSentenceList()
     else:
         print >> sys.stderr, __doc__
         exit(1)
