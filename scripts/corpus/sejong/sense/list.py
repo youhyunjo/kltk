@@ -1,18 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8; tab-width: 4 -*-
-# count.py
+# list.py
 
 """
-count units of Sejong Morphology Sense Tagged Corpus
+list units of Sejong Morphology Sense Tagged Corpus
 
-USAGE: count <unit> <corpus_file_name>
+USAGE : list unit filename
 
-$ count word sejong-sense.txt 
-$ count morph sejong-sense.txt
-$ count sense sejong-sense.txt
+$ list wordlist sejong-sense.txt > words.list
+$ list morphlist sejong-sense.txt > morphs.list
+$ list senselist sejong-sense.txt > senses.list
 
-$ count sentence sejong-sense.txt
-$ count clause sejong-sense.txt
+$ list sentencelist sejong-sense.txt > sentences.list
+$ list clauselist sejong-sense.txt > clauses.list
 
 $Id$
 """
