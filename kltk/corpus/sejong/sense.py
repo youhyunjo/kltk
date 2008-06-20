@@ -1,9 +1,9 @@
 #-*- coding: utf-8; tab-width: 4 -*-
-# Sejong Sense Tagged Corpus Reader
+# Sejong Morphology Sense Tagged Corpus Reader
 # $Id$
 
 """
-Sejong Sense Tagged Corpus Reader.
+Sejong Morphology Sense Tagged Corpus Reader.
 
 corpus sample::
 
