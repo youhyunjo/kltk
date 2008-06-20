@@ -191,14 +191,19 @@ class Corpus:
             return (gid, form, morph_string)
         else :
             # ignores current line and processes next line
-            return self._readline() 
+            #return self._readline() 
+            return line
                   
     def readsentence(self):
 
         # read first word
         ord = 1
+
         line = self._readline()
+        while len(line) != 3 :
+            line = self._readline()
         (gid, form, morph_string) = line
+
         first_word = Word(gid, ord, form, morph_string)
         curr_sentence = Sentence(first_word)
 
@@ -206,8 +211,12 @@ class Corpus:
         while((not SF.match(morph_string)) and line):
             ord = ord + 1
             line = self._readline()
-            (gid, form, morph_string) = line
-            curr_sentence.append(Word(gid, ord, form, morph_string))
+            try:
+                (gid, form, morph_string) = line
+                curr_sentence.append(Word(gid, ord, form, morph_string))
+            except:
+                return curr_sentence
+
 
         return curr_sentence
 
