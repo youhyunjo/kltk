@@ -162,12 +162,13 @@ class Sentence:
 
 
 
-SF = re.compile('.*[/]SF.*')        
-TEXT_LINE = re.compile("^9BS.*")
+
+
 
 class Corpus:
     """Sejong Sense Tagged Corpus.
     """
+
     def __init__(self, file):
         self.file = file
 
@@ -181,6 +182,7 @@ class Corpus:
         if (line == "") : 
             raise StopIteration
 
+        TEXT_LINE = re.compile("^9BS.*")
         if TEXT_LINE.match(line) :
             try:
                 (gid, form, morph_string) = line.strip().split('\t')
@@ -208,6 +210,7 @@ class Corpus:
         curr_sentence = Sentence(first_word)
 
         # read following words
+        SF = re.compile('.*[/]SF( \+ [\'"」]/SS)?$')        
         while((not SF.match(morph_string)) and line):
             ord = ord + 1
             line = self._readline()
