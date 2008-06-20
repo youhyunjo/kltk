@@ -130,19 +130,26 @@ class Test:
 
 
 if __name__ == '__main__':
-    command = sys.argv[1]
-    file = codecs.open(sys.argv[2], encoding='utf-8')
-    sys.stdout = Encode(sys.stdout, 'utf8')
-    counter = SejongSenseCounter(file)
+
+    try:
+        command = sys.argv[1]
+        file = codecs.open(sys.argv[2], encoding='utf-8')
+        sys.stdout = Encode(sys.stdout, 'utf8')
+        counter = SejongSenseCounter(file)
+    except:
+        print __doc__
+        exit(1)
 
     if command == "wordlist" :
         counter.printWordList()
-    if command == "morphlist" :
+    elif command == "morphlist" :
         counter.printMorphList()
-    if command == "senselist":
+    elif command == "senselist":
         counter.printSenseList()
-    if command == "sentencelist":
+    elif command == "sentencelist":
         counter.printSentenceList()
+    else:
+        print __doc__
 
     file.close()
 
