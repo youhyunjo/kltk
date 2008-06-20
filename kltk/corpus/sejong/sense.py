@@ -210,7 +210,7 @@ class Corpus:
         curr_sentence = Sentence(first_word)
 
         # read following words
-        SF = re.compile('.*[/]SF( \+ [\'"」]/SS)?$')        
+        SF = re.compile(u'.*[/]SF( \+ [\'"」]/SS)?$')        
         while((not SF.match(morph_string)) and line):
             ord = ord + 1
             line = self._readline()
