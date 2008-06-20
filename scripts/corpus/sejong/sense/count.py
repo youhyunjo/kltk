@@ -12,9 +12,6 @@ $ count senselist sejong-sense.txt > senses.list
 $ count sentencelist sejong-sense.txt > sentences.list
 $ count clauselist sejong-sense.txt > clauses.list
 
-print frequency tables::
-$ count --word-freq sejong-sense.txt > word-freq.tbl
-
 $Id$
 """
 
@@ -153,4 +150,3 @@ if __name__ == '__main__':
 
     file.close()
 
-n
