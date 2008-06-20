@@ -29,7 +29,7 @@ class Encode:
         self.stdout.write(s.encode(self.encoding))
 
 
-class SejongSenseCounter:
+class SejongSenseLister:
     """ """
     def __init__(self, file):
         self.corpus = Corpus(file)
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         command = sys.argv[1]
         file = codecs.open(sys.argv[2], encoding='utf-8')
 
-        counter = SejongSenseCounter(file)
+        lister = SejongSenseLister(file)
     except:
         print __doc__
         exit(1)
@@ -68,13 +68,13 @@ if __name__ == '__main__':
     sys.stdout = Encode(sys.stdout, 'utf8')
 
     if command == "words" :
-        counter.printWordList()
+        lister.printWordList()
     elif command == "morphs" :
-        counter.printMorphList()
+        lister.printMorphList()
     elif command == "senses":
-        counter.printSenseList()
+        lister.printSenseList()
     elif command == "sentences":
-            counter.printSentenceList()
+            lister.printSentenceList()
     else:
         print __doc__
         exit(1)
