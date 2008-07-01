@@ -25,8 +25,8 @@ class Test:
 	def __init__(self, file, output_encoding):
 		self.fw = ForestWalker(file)
 		sys.stdout = Encode(sys.stdout, output_encoding)
-		self.print_emi_pair()
-		#self.print_morph()
+		#self.print_emi_pair()
+		self.print_morph()
 	
 
 	def print_morph(self):
