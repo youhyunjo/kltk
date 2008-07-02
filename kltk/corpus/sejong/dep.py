@@ -66,7 +66,8 @@ class ForestWalker:
 		"""
 		# read sentence form line
 		line = self._readline()
-		tree = Tree(line.split(' ')[0])
+		i = line.find(';')
+		tree = Tree(line[0:i].strip(), line[i+1:-1].strip())
 
 		# make list of nodes
 		list_of_nodes = []
@@ -152,8 +153,12 @@ class Tree:
 	"""
 	Dependency Tree
 	"""
-	def __init__(self, id):
+	def __init__(self, id, sentence_form):
 		self.id = id
+		"""
+		@type: string
+		"""
+		self.sentence_form = sentence_form
 		"""
 		@type: string
 		"""
