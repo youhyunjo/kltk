@@ -4,5 +4,5 @@
 
 How to use kltk module
 
-$ export PYTHONPATH=$HOME/kltk
+$ export PYTHONPATH=$HOME/kltk/lib/python2.6
 
