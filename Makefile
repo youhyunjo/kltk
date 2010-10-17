@@ -1,5 +1,5 @@
 EPYDOC := epydoc
 
-apidoc: kltk epydoc-kltk.conf
+python-kltk-apidoc: lib/python2.6/kltk epydoc-kltk.conf
 	$(EPYDOC) --config epydoc-kltk.conf
 
