@@ -48,7 +48,7 @@ from morph import Morph
 from morph import Word
 
 class ForestWalker:
-	"""ForestWlaker
+	"""ForestWalker
 	"""
 	def __init__(self, file):
 		"""
@@ -67,29 +67,17 @@ class ForestWalker:
 		# read sentence form line
 		line = self._readline()
 		i = line.find(';')
-		tree = Tree(line[0:i].strip(), line[i+1:-1].strip())
+		tree = Tree(line[0:i].strip(), line[i+1:].strip())
 
-		# make list of nodes
-		list_of_nodes = []
+		# set tree
+		table = []
 		line = self._readline()
-		while (line):
-			(ord, dep, tag1, tag2, wordform, morph_string) = line.split("\t")	
-			morphs = self._parse_morph_string(morph_string)
-			word = Word(ord, wordform, morphs, morph_string)
-			list_of_nodes.append(Node(ord, dep, tag1, tag2, word))
+		while line != "":
+			table.append(line)
 			line = self._readline()
 
-		# make tree with list of nodes
-		# set parent-child relations
-		for n in list_of_nodes:
-			if n.dep == n.ord:
-				tree.set_root(n)
-			else:
-				p = list_of_nodes[int(n.dep)-1]
-				n.parent = p
-				p.add_a_child(n)
+		tree.setWith(table)	
 
-		tree.nodes = list_of_nodes
 		return tree
 	
 	def _parse_morph_string(self, morph_string):
@@ -118,8 +106,6 @@ class ForestWalker:
 		
 		return morphs
 
-
-
 	def _readline(self):
 		"""
 		@rtype: string or list
@@ -128,15 +114,9 @@ class ForestWalker:
 		line = self.file.readline()
 
 		# EOF
-		if (line == '') : sys.exit(0)
+		if (line == '') : raise StopIteration
 
 		return line.strip()
-
-		fields = line.strip().split("\t")
-		if len(fields) == 6 :
-			return fields
-		else :
-			return line.strip()	
 
 	def next(self):
 		return self.readtree()
@@ -145,10 +125,37 @@ class ForestWalker:
 
 class TreeBank:
 	"""
-	@status: Not yet implemented
+	TreeBank a list of L{Tree}. 
 	"""
-	pass
-	
+	def __init__(self):
+		self.trees = []
+
+	def append(self, tree):
+		self.trees.append(tree)	
+
+	def load(self, corpus):
+		"""
+		@parm corpus: dependency corpus file
+		"""
+		table = []
+		for line in corpus:
+			table.append(line.strip())	
+			if line.strip() == "":
+				header = table[0]	
+				i = header.find(';')
+				tree = Tree(header[0:i].strip(), header[i+1:].strip())
+				tree.setWith(table[1:])
+				self.trees.append(tree)
+				table = []
+		if table != [] :
+			header = table[0]	
+			i = header.find(';')
+			tree = Tree(header[0:i].strip(), header[i+1:].strip())
+			tree.setWith(table[1:])
+			self.trees.append(tree)
+			table = []
+				
+
 class Tree:
 	"""
 	Dependency Tree
@@ -174,6 +181,57 @@ class Tree:
 		"""
 		@type: list of L{Node}
 		"""
+
+	def setWith(self, table):
+		"""
+		@rtype: L{Tree}
+		"""
+		# read sentence form line
+
+		for line in table:
+			if line == "" : break	
+			(ord, dep, tag1, tag2, wordform, morph_string) = line.split("\t")	
+			morphs = self._parse_morph_string(morph_string)
+			word = Word(ord, wordform, morphs, morph_string)
+			self.nodes.append(Node(ord, dep, tag1, tag2, word))
+
+		# make tree with list of nodes
+		# set parent-child relations
+		for n in self.nodes:
+			if n.dep == n.ord:
+				self.set_root(n)
+			else:
+				p = self.nodes[int(n.dep)-1]
+				n.parent = p
+				p.add_a_child(n)
+
+	def _parse_morph_string(self, morph_string):
+		"""
+		@rtype: list of L{Morph}
+		"""
+		morphs = []
+
+		m = morph_string
+		for m in morph_string.split('+'):
+			m = m.strip()
+			if m == "" :
+				pass
+			else :
+				if m == "/SW":
+					form, pos = "+", "SW"
+				elif m[0:2] == "//":
+					form, pos = "/", m[2:]
+				else :
+					try :
+						form, pos = m.split("/")
+						if pos == "" : pos = "_ERR_"
+					except :
+						form, pos = m, "_ERR_"	
+				morphs.append(Morph(form,pos))
+		
+		return morphs
+
+
 	
 	def set_root(self, node):
 		"""
@@ -196,7 +254,14 @@ class Tree:
 					self.terminals.append(n)
 		return self.terminals
 
+	def match(self, pattern):
+		return pattern(self)
 
+	def toTable(self):
+		str = self.id + " ; " + self.sentence_form  + "\n"
+		for node in self.nodes:
+			str += node.__str__() + "\n"
+		return str
 
 class Node:
 	"""
@@ -252,10 +317,18 @@ class Node:
 	def add_a_child(self, node):
 		self.children.append(node)
 
+	def __str__(self):
+		return self.ord + "\t" + \
+	           self.dep + "\t" + \
+               self.tag1 + "\t" + \
+               self.tag2 + "\t" + \
+               self.word.__str__() + "\t" + \
+			   self.word.morph_string
+
 #================
 # TEST CODE
 
-class Encode:
+class code:
     def __init__(self, stdout, enc):
         self.stdout = stdout
         self.encoding = enc
