@@ -154,7 +154,12 @@ class TreeBank:
 			tree.setWith(table[1:])
 			self.trees.append(tree)
 			table = []
-				
+		
+	def getTree(self, id):
+		for tree in self.trees:	
+			if tree.id == id:
+				return tree
+		return None
 
 class Tree:
 	"""
